@@ -2,7 +2,7 @@ import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useState } from 'react';
-import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { listWithStats, type CatheterRow } from './src/db';
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoadScreen from './src/screens/LoadScreen';
@@ -45,6 +45,7 @@ function Main() {
     <SafeAreaView style={styles.container}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View style={styles.header}>
+        <Image source={require('./assets/icon.png')} style={styles.logo} accessibilityIgnoresInvertColors />
         <View style={styles.titleBox}>
           <Text style={styles.title}>Stock de catéteres</Text>
           <Text style={styles.version}>v{Constants.expoConfig?.version ?? '?'}</Text>
@@ -94,6 +95,7 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: c.bg, paddingTop: 40 },
     header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 4 },
+    logo: { width: 36, height: 36, borderRadius: 9, marginRight: 10 },
     titleBox: { flex: 1 },
     title: { fontSize: 22, fontWeight: '700', color: c.text },
     version: { fontSize: 11, color: c.muted },
