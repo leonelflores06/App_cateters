@@ -1,0 +1,51 @@
+name: Build APK
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  workflow_dispatch:
+
+jobs:
+  build-android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Instalar dependencias
+        run: npm ci
+
+      - name: Chequear tipos
+        run: npx tsc --noEmit
+
+      - name: Lint
+        run: npx expo lint
+
+      - name: Tests del intérprete de voz
+        run: npm test
+
+      - name: Generar proyecto nativo (prebuild)
+        run: npx expo prebuild --platform android --no-install
+
+      - name: Incluir modelo de voz (Whisper) en el APK
+        run: bash scripts/fetch-model.sh
+
+      - name: Compilar APK (release)
+        working-directory: android
+        run: ./gradlew assembleRelease --no-daemon
+
+      - name: Subir APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-cateteres-apk
+          path: android/app/build/outputs/apk/release/*.apk

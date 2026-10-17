@@ -1,0 +1,30 @@
+{
+  "name": "stock-cateteres",
+  "version": "1.0.0",
+  "main": "index.ts",
+  "dependencies": {
+    "@fugood/react-native-audio-pcm-stream": "^1.1.4",
+    "expo": "~58.0.14",
+    "expo-sqlite": "^58.0.13",
+    "expo-status-bar": "~58.0.3",
+    "react": "19.3.0",
+    "react-native": "0.88.0",
+    "whisper.rn": "^0.7.4"
+  },
+  "devDependencies": {
+    "@types/react": "~19.3.0",
+    "eslint": "^9.0.0",
+    "eslint-config-expo": "~58.0.4",
+    "typescript": "~6.0.3"
+  },
+  "scripts": {
+    "start": "expo start",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
+    "web": "expo start --web",
+    "test": "node --test tests/parser.test.ts",
+    "typecheck": "tsc --noEmit",
+    "lint": "expo lint"
+  },
+  "private": true
+}
