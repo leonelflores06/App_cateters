@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ColumnChart, HBar } from '../components/Charts';
 import { dailyUsage, recentMovements, type CatheterRow, type Movement } from '../db';
-import { colors, ui } from '../ui';
+import { sharedStyles, useStyles, useTheme, type Palette } from '../theme';
 
 const DAYS = 14;
 const WEEKDAY = ['D', 'L', 'M', 'M', 'J', 'V', 'S'];
 
 /** Apartado "Panel": totales, gráfico de uso diario, uso por catéter, stock vs mínimo y últimos movimientos. */
 export default function DashboardScreen({ rows }: { rows: CatheterRow[] }) {
+  const styles = useStyles(makeStyles);
+  const ui = useStyles(sharedStyles);
+  const { c: colors } = useTheme();
   const [daily, setDaily] = useState<{ day: string; used: number }[]>([]);
   const [recent, setRecent] = useState<(Movement & { name: string })[]>([]);
 
@@ -133,6 +136,9 @@ export default function DashboardScreen({ rows }: { rows: CatheterRow[] }) {
 }
 
 function Tile({ label, value, alert }: { label: string; value: number; alert?: boolean }) {
+  const styles = useStyles(makeStyles);
+  const ui = useStyles(sharedStyles);
+  const { c: colors } = useTheme();
   return (
     <View style={styles.tile}>
       <Text style={[styles.tileValue, alert && { color: colors.danger }]}>{value}</Text>
@@ -147,17 +153,18 @@ function formatWhen(iso: string): string {
   return `${p(d.getDate())}/${p(d.getMonth() + 1)} ${p(d.getHours())}:${p(d.getMinutes())}`;
 }
 
-const styles = StyleSheet.create({
-  wrap: { padding: 16, paddingBottom: 32 },
-  tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
-  tile: { flexGrow: 1, flexBasis: '45%', backgroundColor: colors.card, borderRadius: 12, padding: 12 },
-  tileValue: { fontSize: 26, fontWeight: '700', color: colors.text },
-  alertCard: { borderWidth: 2, borderColor: colors.danger },
-  alertTitle: { fontWeight: '700', color: colors.dangerText, marginBottom: 4 },
-  alertLine: { color: colors.text },
-  mov: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
-  movDelta: { width: 40, fontSize: 16, fontWeight: '700', textAlign: 'right' },
-  movName: { fontWeight: '600' },
-  emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
-  empty: { color: '#888', textAlign: 'center' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    wrap: { padding: 16, paddingBottom: 32 },
+    tiles: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 12 },
+    tile: { flexGrow: 1, flexBasis: '45%', backgroundColor: colors.card, borderRadius: 12, padding: 12 },
+    tileValue: { fontSize: 26, fontWeight: '700', color: colors.text },
+    alertCard: { borderWidth: 2, borderColor: colors.danger },
+    alertTitle: { fontWeight: '700', color: colors.dangerText, marginBottom: 4 },
+    alertLine: { color: colors.text },
+    mov: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 6 },
+    movDelta: { width: 40, fontSize: 16, fontWeight: '700', textAlign: 'right' },
+    movName: { fontWeight: '600', color: colors.text },
+    emptyWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 24 },
+    empty: { color: colors.muted, textAlign: 'center' },
+  });

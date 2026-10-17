@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from 'react-native';
-import { colors } from '../ui';
+import { useStyles, useTheme, type Palette } from '../theme';
 
 /** Gráfico de columnas simple (sin librerías nativas): una columna por valor. */
 export function ColumnChart({
@@ -9,6 +9,7 @@ export function ColumnChart({
   data: { label: string; value: number }[];
   height?: number;
 }) {
+  const styles = useStyles(makeStyles);
   const max = Math.max(1, ...data.map((d) => d.value));
   return (
     <View>
@@ -44,7 +45,7 @@ export function HBar({
   max,
   right,
   marker,
-  color = colors.primary,
+  color,
 }: {
   label: string;
   value: number;
@@ -53,6 +54,8 @@ export function HBar({
   marker?: number;
   color?: string;
 }) {
+  const styles = useStyles(makeStyles);
+  const { c } = useTheme();
   const pct = (v: number) => `${Math.min(100, (100 * v) / Math.max(1, max))}%` as const;
   return (
     <View style={styles.hRow}>
@@ -63,26 +66,27 @@ export function HBar({
         <Text style={styles.hRight}>{right ?? value}</Text>
       </View>
       <View style={styles.hTrack}>
-        <View style={[styles.hFill, { width: pct(value), backgroundColor: color }]} />
+        <View style={[styles.hFill, { width: pct(value), backgroundColor: color ?? c.primary }]} />
         {marker !== undefined && marker > 0 && <View style={[styles.hMarker, { left: pct(marker) }]} />}
       </View>
     </View>
   );
 }
 
-const styles = StyleSheet.create({
-  cols: { flexDirection: 'row', alignItems: 'flex-end', gap: 3 },
-  col: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
-  colValue: { fontSize: 10, color: colors.muted, marginBottom: 2 },
-  colBar: { width: '100%', backgroundColor: colors.primary, borderTopLeftRadius: 3, borderTopRightRadius: 3 },
-  colBarEmpty: { backgroundColor: colors.track },
-  colLabels: { flexDirection: 'row', gap: 3, marginTop: 4 },
-  colLabel: { flex: 1, textAlign: 'center', fontSize: 9, color: colors.muted },
-  hRow: { marginBottom: 10 },
-  hHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  hLabel: { fontWeight: '600', flex: 1, marginRight: 8 },
-  hRight: { color: colors.muted, fontSize: 13 },
-  hTrack: { height: 10, backgroundColor: colors.track, borderRadius: 5, overflow: 'hidden' },
-  hFill: { height: '100%', borderRadius: 5 },
-  hMarker: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: colors.text },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    cols: { flexDirection: 'row', alignItems: 'flex-end', gap: 3 },
+    col: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
+    colValue: { fontSize: 10, color: c.muted, marginBottom: 2 },
+    colBar: { width: '100%', backgroundColor: c.primary, borderTopLeftRadius: 3, borderTopRightRadius: 3 },
+    colBarEmpty: { backgroundColor: c.track },
+    colLabels: { flexDirection: 'row', gap: 3, marginTop: 4 },
+    colLabel: { flex: 1, textAlign: 'center', fontSize: 9, color: c.muted },
+    hRow: { marginBottom: 10 },
+    hHead: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+    hLabel: { fontWeight: '600', flex: 1, marginRight: 8, color: c.text },
+    hRight: { color: c.muted, fontSize: 13 },
+    hTrack: { height: 10, backgroundColor: c.track, borderRadius: 5, overflow: 'hidden' },
+    hFill: { height: '100%', borderRadius: 5 },
+    hMarker: { position: 'absolute', top: 0, bottom: 0, width: 2, backgroundColor: c.text },
+  });

@@ -21,6 +21,8 @@ La app tiene dos apartados (barra de abajo):
 3. Revisá lo que entendió: podés corregir cantidades (− / +), quitar una línea (×) o invertir uso/reposición.
 4. **Actualizar stock** guarda; **Descartar** borra todo si entendió mal.
 
+**Tema**: botón arriba a la derecha → ◐ Auto (sigue al celular) / ☀️ Claro / 🌙 Oscuro. Se recuerda.
+
 **📊 Panel**: stock total, usados en 7 y 30 días, alertas de reposición, gráfico de uso diario (14 días),
 uso por catéter, stock vs mínimo (con días restantes) y últimos movimientos.
 

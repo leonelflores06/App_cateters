@@ -3,13 +3,16 @@ import { ActivityIndicator, Alert, FlatList, Pressable, StyleSheet, Text, TextIn
 import { addCatheter, applyMovement, listWithStats, type CatheterRow } from '../db';
 import { parseCommand, type ParsedItem } from '../parser';
 import { explain, explainChange } from '../reasoning';
-import { colors, ui } from '../ui';
+import { sharedStyles, useStyles, useTheme, type Palette } from '../theme';
 import { cancelListening, MAX_SECONDS, startListening, stopAndTranscribe, warmUp } from '../voice';
 
 type Draft = { items: ParsedItem[]; unknown: string[] };
 
 /** Apartado "Cargar": registrar uso/reposición por voz o texto, revisar y Actualizar o Descartar. */
 export default function LoadScreen({ rows, reload }: { rows: CatheterRow[]; reload: () => Promise<void> }) {
+  const styles = useStyles(makeStyles);
+  const ui = useStyles(sharedStyles);
+  const { c: colors } = useTheme();
   const [cmd, setCmd] = useState('');
   const [phase, setPhase] = useState<'idle' | 'listening' | 'transcribing'>('idle');
   const [draft, setDraft] = useState<Draft | null>(null);
@@ -143,6 +146,7 @@ export default function LoadScreen({ rows, reload }: { rows: CatheterRow[]; relo
         <View style={styles.row}>
           <TextInput
             style={ui.input}
+            placeholderTextColor={colors.placeholder}
             placeholder='Decí o escribí: "usé 3 de 18G y 1 de 20G"'
             value={cmd}
             onChangeText={(t) => {
@@ -156,7 +160,7 @@ export default function LoadScreen({ rows, reload }: { rows: CatheterRow[]; relo
             disabled={phase === 'transcribing'}
           >
             {phase === 'transcribing' ? (
-              <ActivityIndicator color="#fff" />
+              <ActivityIndicator color={colors.onPrimary} />
             ) : (
               <Text style={styles.micTxt}>{phase === 'listening' ? '■' : '🎤'}</Text>
             )}
@@ -222,9 +226,29 @@ export default function LoadScreen({ rows, reload }: { rows: CatheterRow[]; relo
       <View style={ui.card}>
         <Text style={ui.sectionTitle}>Nuevo catéter</Text>
         <View style={styles.row}>
-          <TextInput style={[ui.input, { flex: 2 }]} placeholder="Nombre (ej. 18G)" value={name} onChangeText={setName} />
-          <TextInput style={ui.input} placeholder="Stock" keyboardType="numeric" value={stock} onChangeText={setStock} />
-          <TextInput style={ui.input} placeholder="Mín." keyboardType="numeric" value={min} onChangeText={setMin} />
+          <TextInput
+            style={[ui.input, { flex: 2 }]}
+            placeholderTextColor={colors.placeholder}
+            placeholder="Nombre (ej. 18G)"
+            value={name}
+            onChangeText={setName}
+          />
+          <TextInput
+            style={ui.input}
+            placeholderTextColor={colors.placeholder}
+            placeholder="Stock"
+            keyboardType="numeric"
+            value={stock}
+            onChangeText={setStock}
+          />
+          <TextInput
+            style={ui.input}
+            placeholderTextColor={colors.placeholder}
+            placeholder="Mín."
+            keyboardType="numeric"
+            value={min}
+            onChangeText={setMin}
+          />
           <Pressable style={styles.addBtn} onPress={onAdd}>
             <Text style={styles.addTxt}>+</Text>
           </Pressable>
@@ -266,42 +290,43 @@ export default function LoadScreen({ rows, reload }: { rows: CatheterRow[]; relo
   );
 }
 
-const styles = StyleSheet.create({
-  list: { padding: 16, paddingBottom: 32 },
-  row: { flexDirection: 'row', gap: 6 },
-  gapTop: { marginTop: 8 },
-  mic: { backgroundColor: colors.primary, borderRadius: 8, width: 46, alignItems: 'center', justifyContent: 'center' },
-  micOn: { backgroundColor: colors.danger },
-  micTxt: { color: '#fff', fontSize: 20 },
-  preview: { backgroundColor: colors.bg, borderRadius: 8, padding: 10, gap: 8, marginTop: 10 },
-  item: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  tag: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
-  tagUse: { backgroundColor: '#fde8e8' },
-  tagAdd: { backgroundColor: '#e3f5e8' },
-  tagTxt: { fontSize: 12, fontWeight: '700' },
-  itemName: { flex: 1, fontSize: 16, fontWeight: '600' },
-  step: { backgroundColor: colors.card, borderRadius: 6, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 18, fontWeight: '700' },
-  qty: { minWidth: 26, textAlign: 'center', fontSize: 16, fontWeight: '700' },
-  remove: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
-  removeTxt: { fontSize: 22, color: colors.dangerText },
-  unknown: { color: colors.dangerText, fontSize: 13 },
-  actions: { flexDirection: 'row', gap: 8, marginTop: 4 },
-  action: { flex: 1, borderRadius: 8, paddingVertical: 11, alignItems: 'center' },
-  discard: { backgroundColor: colors.card, borderWidth: 1, borderColor: '#ccd' },
-  discardTxt: { fontWeight: '700', color: colors.text },
-  confirm: { backgroundColor: colors.primary },
-  confirmTxt: { color: '#fff', fontWeight: '700' },
-  disabled: { opacity: 0.5 },
-  summary: { color: colors.ok, fontSize: 13, marginTop: 8 },
-  addBtn: { backgroundColor: colors.primary, borderRadius: 8, width: 42, alignItems: 'center', justifyContent: 'center' },
-  addTxt: { color: '#fff', fontSize: 22, fontWeight: '700' },
-  empty: { textAlign: 'center', color: '#888', marginTop: 20 },
-  card: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: 12, padding: 14, marginBottom: 10, gap: 10 },
-  cardLow: { borderWidth: 2, borderColor: colors.danger },
-  name: { fontSize: 16, fontWeight: '600' },
-  stock: { fontSize: 22, fontWeight: '700', marginVertical: 2 },
-  btns: { justifyContent: 'center', gap: 6 },
-  btn: { backgroundColor: colors.track, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14 },
-  btnTxt: { fontWeight: '700' },
-});
+const makeStyles = (colors: Palette) =>
+  StyleSheet.create({
+    list: { padding: 16, paddingBottom: 32 },
+    row: { flexDirection: 'row', gap: 6 },
+    gapTop: { marginTop: 8 },
+    mic: { backgroundColor: colors.primary, borderRadius: 8, width: 46, alignItems: 'center', justifyContent: 'center' },
+    micOn: { backgroundColor: colors.danger },
+    micTxt: { color: colors.onPrimary, fontSize: 20 },
+    preview: { backgroundColor: colors.bg, borderRadius: 8, padding: 10, gap: 8, marginTop: 10 },
+    item: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+    tag: { borderRadius: 6, paddingHorizontal: 8, paddingVertical: 4 },
+    tagUse: { backgroundColor: colors.useBg },
+    tagAdd: { backgroundColor: colors.addBg },
+    tagTxt: { fontSize: 12, fontWeight: '700', color: colors.text },
+    itemName: { flex: 1, fontSize: 16, fontWeight: '600', color: colors.text },
+    step: { backgroundColor: colors.card, borderRadius: 6, width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
+    stepTxt: { fontSize: 18, fontWeight: '700', color: colors.text },
+    qty: { minWidth: 26, textAlign: 'center', fontSize: 16, fontWeight: '700', color: colors.text },
+    remove: { width: 30, height: 30, alignItems: 'center', justifyContent: 'center' },
+    removeTxt: { fontSize: 22, color: colors.dangerText },
+    unknown: { color: colors.dangerText, fontSize: 13 },
+    actions: { flexDirection: 'row', gap: 8, marginTop: 4 },
+    action: { flex: 1, borderRadius: 8, paddingVertical: 11, alignItems: 'center' },
+    discard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border },
+    discardTxt: { fontWeight: '700', color: colors.text },
+    confirm: { backgroundColor: colors.primary },
+    confirmTxt: { color: colors.onPrimary, fontWeight: '700' },
+    disabled: { opacity: 0.5 },
+    summary: { color: colors.ok, fontSize: 13, marginTop: 8 },
+    addBtn: { backgroundColor: colors.primary, borderRadius: 8, width: 42, alignItems: 'center', justifyContent: 'center' },
+    addTxt: { color: colors.onPrimary, fontSize: 22, fontWeight: '700' },
+    empty: { textAlign: 'center', color: colors.muted, marginTop: 20 },
+    card: { flexDirection: 'row', backgroundColor: colors.card, borderRadius: 12, padding: 14, marginBottom: 10, gap: 10 },
+    cardLow: { borderWidth: 2, borderColor: colors.danger },
+    name: { fontSize: 16, fontWeight: '600', color: colors.text },
+    stock: { fontSize: 22, fontWeight: '700', marginVertical: 2, color: colors.text },
+    btns: { justifyContent: 'center', gap: 6 },
+    btn: { backgroundColor: colors.track, borderRadius: 8, paddingVertical: 8, paddingHorizontal: 14 },
+    btnTxt: { fontWeight: '700', color: colors.text },
+  });

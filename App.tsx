@@ -1,14 +1,28 @@
 import { StatusBar } from 'expo-status-bar';
+import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useState } from 'react';
 import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { listWithStats, type CatheterRow } from './src/db';
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoadScreen from './src/screens/LoadScreen';
-import { colors } from './src/ui';
+import { ThemeProvider, useStyles, useTheme, type Palette, type ThemeMode } from './src/theme';
 
 type Tab = 'cargar' | 'panel';
 
+const NEXT_MODE: Record<ThemeMode, ThemeMode> = { system: 'light', light: 'dark', dark: 'system' };
+const MODE_LABEL: Record<ThemeMode, string> = { system: '◐ Auto', light: '☀️ Claro', dark: '🌙 Oscuro' };
+
 export default function App() {
+  return (
+    <ThemeProvider>
+      <Main />
+    </ThemeProvider>
+  );
+}
+
+function Main() {
+  const styles = useStyles(makeStyles);
+  const { c, isDark, mode, setMode } = useTheme();
   const [tab, setTab] = useState<Tab>('cargar');
   const [rows, setRows] = useState<CatheterRow[]>([]);
 
@@ -20,10 +34,20 @@ export default function App() {
     reload();
   }, [reload]);
 
+  // Fondo nativo (detrás de la app y al rotar/abrir el teclado) acorde al tema.
+  useEffect(() => {
+    SystemUI.setBackgroundColorAsync(c.bg).catch(() => {});
+  }, [c.bg]);
+
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar style="dark" />
-      <Text style={styles.title}>Stock de catéteres</Text>
+      <StatusBar style={isDark ? 'light' : 'dark'} />
+      <View style={styles.header}>
+        <Text style={styles.title}>Stock de catéteres</Text>
+        <Pressable style={styles.modeBtn} onPress={() => setMode(NEXT_MODE[mode])}>
+          <Text style={styles.modeTxt}>{MODE_LABEL[mode]}</Text>
+        </Pressable>
+      </View>
 
       {/* Las dos pantallas quedan montadas para no perder lo que se estaba cargando al cambiar de apartado. */}
       <View style={[styles.screen, tab !== 'cargar' && styles.hidden]}>
@@ -42,6 +66,7 @@ export default function App() {
 }
 
 function TabButton({ label, icon, active, onPress }: { label: string; icon: string; active: boolean; onPress: () => void }) {
+  const styles = useStyles(makeStyles);
   return (
     <Pressable style={styles.tab} onPress={onPress}>
       <Text style={styles.tabIcon}>{icon}</Text>
@@ -51,15 +76,19 @@ function TabButton({ label, icon, active, onPress }: { label: string; icon: stri
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.bg, paddingTop: 40 },
-  title: { fontSize: 22, fontWeight: '700', paddingHorizontal: 16, paddingBottom: 4 },
-  screen: { flex: 1 },
-  hidden: { display: 'none' },
-  tabs: { flexDirection: 'row', backgroundColor: colors.card, borderTopWidth: 1, borderTopColor: '#dde', paddingBottom: 8 },
-  tab: { flex: 1, alignItems: 'center', paddingTop: 8 },
-  tabIcon: { fontSize: 20 },
-  tabTxt: { fontSize: 12, color: colors.muted, marginTop: 2 },
-  tabTxtOn: { color: colors.primary, fontWeight: '700' },
-  tabBar: { position: 'absolute', top: 0, height: 3, width: 40, backgroundColor: colors.primary, borderRadius: 2 },
-});
+const makeStyles = (c: Palette) =>
+  StyleSheet.create({
+    container: { flex: 1, backgroundColor: c.bg, paddingTop: 40 },
+    header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 4 },
+    title: { flex: 1, fontSize: 22, fontWeight: '700', color: c.text },
+    modeBtn: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: 16, paddingHorizontal: 10, paddingVertical: 5 },
+    modeTxt: { fontSize: 13, color: c.text },
+    screen: { flex: 1 },
+    hidden: { display: 'none' },
+    tabs: { flexDirection: 'row', backgroundColor: c.card, borderTopWidth: 1, borderTopColor: c.border, paddingBottom: 8 },
+    tab: { flex: 1, alignItems: 'center', paddingTop: 8 },
+    tabIcon: { fontSize: 20 },
+    tabTxt: { fontSize: 12, color: c.muted, marginTop: 2 },
+    tabTxtOn: { color: c.primary, fontWeight: '700' },
+    tabBar: { position: 'absolute', top: 0, height: 3, width: 40, backgroundColor: c.primary, borderRadius: 2 },
+  });
