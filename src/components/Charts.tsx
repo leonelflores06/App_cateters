@@ -11,12 +11,15 @@ export function ColumnChart({
 }) {
   const styles = useStyles(makeStyles);
   const max = Math.max(1, ...data.map((d) => d.value));
+  // Con muchas columnas no entran todos los números/etiquetas: se muestran salteados.
+  const showValues = data.length <= 16;
+  const labelStep = Math.ceil(data.length / 12);
   return (
     <View>
       <View style={[styles.cols, { height }]}>
         {data.map((d, i) => (
           <View key={i} style={styles.col}>
-            {d.value > 0 && <Text style={styles.colValue}>{d.value}</Text>}
+            {showValues && d.value > 0 && <Text style={styles.colValue}>{d.value}</Text>}
             <View
               style={[
                 styles.colBar,
@@ -30,7 +33,7 @@ export function ColumnChart({
       <View style={styles.colLabels}>
         {data.map((d, i) => (
           <Text key={i} style={styles.colLabel} numberOfLines={1}>
-            {d.label}
+            {i % labelStep === 0 ? d.label : ''}
           </Text>
         ))}
       </View>

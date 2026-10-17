@@ -1,4 +1,5 @@
 import * as SQLite from 'expo-sqlite';
+import type { Range } from './period';
 
 export type Catheter = {
   id: number;
@@ -119,29 +120,57 @@ export async function listWithStats(): Promise<CatheterRow[]> {
   return Promise.all(list.map(async (c) => ({ ...c, stats: await getStats(c) })));
 }
 
-/** Fecha local "YYYY-MM-DD" (igual que date(..., 'localtime') de SQLite). */
-export function localDay(d: Date): string {
-  const p = (n: number) => String(n).padStart(2, '0');
-  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
-}
+const IN_RANGE = "date(m.created_at, 'localtime') BETWEEN ? AND ?";
 
-/** Unidades usadas por día en los últimos `days` días (incluye hoy), con ceros en los días sin uso. */
-export async function dailyUsage(days: number): Promise<{ day: string; used: number }[]> {
+/** Unidades usadas por día local dentro del rango. */
+export async function usageByDay(r: Range): Promise<Map<string, number>> {
   const db = await getDb();
   const rows = await db.getAllAsync<{ day: string; used: number }>(
-    `SELECT date(created_at, 'localtime') AS day, SUM(-delta) AS used
-     FROM movements WHERE delta < 0 AND created_at >= ${since(days + 1)}
-     GROUP BY day`
+    `SELECT date(m.created_at, 'localtime') AS day, SUM(-m.delta) AS used
+     FROM movements m WHERE m.delta < 0 AND ${IN_RANGE} GROUP BY day`,
+    [r.from, r.to]
   );
-  const byDay = new Map(rows.map((r) => [r.day, r.used]));
-  const out: { day: string; used: number }[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    const d = new Date();
-    d.setDate(d.getDate() - i);
-    const key = localDay(d);
-    out.push({ day: key, used: byDay.get(key) ?? 0 });
-  }
+  return new Map(rows.map((x) => [x.day, x.used]));
+}
+
+/** Unidades usadas por hora (0-23) en un día. */
+export async function usageByHour(day: string): Promise<number[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ h: string; used: number }>(
+    `SELECT strftime('%H', m.created_at, 'localtime') AS h, SUM(-m.delta) AS used
+     FROM movements m WHERE m.delta < 0 AND ${IN_RANGE} GROUP BY h`,
+    [day, day]
+  );
+  const out = new Array<number>(24).fill(0);
+  for (const x of rows) out[parseInt(x.h, 10)] = x.used;
   return out;
+}
+
+export type CatheterTotals = { id: number; name: string; used: number; added: number };
+
+/** Usados y repuestos por catéter en el rango (incluye los que no tuvieron movimientos). */
+export async function totalsByCatheter(r: Range): Promise<CatheterTotals[]> {
+  const db = await getDb();
+  return db.getAllAsync<CatheterTotals>(
+    `SELECT c.id, c.name,
+       COALESCE(SUM(CASE WHEN m.delta < 0 THEN -m.delta END), 0) AS used,
+       COALESCE(SUM(CASE WHEN m.delta > 0 THEN m.delta END), 0) AS added
+     FROM catheters c
+     LEFT JOIN movements m ON m.catheter_id = c.id AND ${IN_RANGE}
+     GROUP BY c.id ORDER BY used DESC, c.name`,
+    [r.from, r.to]
+  );
+}
+
+export async function movementsInRange(r: Range, limit = 30) {
+  const db = await getDb();
+  return db.getAllAsync<Movement & { name: string }>(
+    `SELECT m.*, c.name FROM movements m
+     JOIN catheters c ON c.id = m.catheter_id
+     WHERE ${IN_RANGE}
+     ORDER BY m.id DESC LIMIT ?`,
+    [r.from, r.to, limit]
+  );
 }
 
 export async function getSetting(key: string): Promise<string | null> {

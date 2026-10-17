@@ -23,8 +23,11 @@ La app tiene dos apartados (barra de abajo):
 
 **Tema**: botón arriba a la derecha → ◐ Auto (sigue al celular) / ☀️ Claro / 🌙 Oscuro. Se recuerda.
 
-**📊 Panel**: stock total, usados en 7 y 30 días, alertas de reposición, gráfico de uso diario (14 días),
-uso por catéter, stock vs mínimo (con días restantes) y últimos movimientos.
+**📊 Panel**: elegí el período del reporte — **Hoy**, **7 días** (predeterminado), **30 días** o
+**Elegir fechas** (Desde/Hasta, DD/MM/AAAA). Muestra usados, repuestos y promedio diario del período,
+gráfico de uso (por hora si es un día; por día, semana o mes según el largo), uso por catéter,
+stock actual vs mínimo con días restantes, alertas de reposición y movimientos del período.
+Se recuerda el último período elegido.
 
 También sirve escribir la frase. Para reponer: *"repuse 10 de 18G"*, *"llegaron 20 de 22G"*.
 Los números pueden ir en dígitos o palabras ("tres", "dieciocho", "treinta y dos"). Si no ponés cantidad, se toma 1.
