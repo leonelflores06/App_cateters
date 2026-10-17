@@ -42,7 +42,7 @@ Requisitos: Node 22, JDK 17 y Android SDK (Android Studio).
 ```bash
 npx expo prebuild --platform android
 bash scripts/fetch-model.sh          # mete el modelo de voz en el APK (descarga ~57 MB)
-cd android && ./gradlew assembleRelease
+cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
 # APK en android/app/build/outputs/apk/release/
 ```
 

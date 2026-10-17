@@ -1,0 +1,19 @@
+diff --git a/node_modules/whisper.rn/android/build.gradle b/node_modules/whisper.rn/android/build.gradle
+index 4658456..afdc030 100644
+--- a/node_modules/whisper.rn/android/build.gradle
++++ b/node_modules/whisper.rn/android/build.gradle
+@@ -1,14 +1,3 @@
+-buildscript {
+-  repositories {
+-    google()
+-    mavenCentral()
+-  }
+-
+-  dependencies {
+-    classpath "com.android.tools.build:gradle:7.2.1"
+-  }
+-}
+-
+ def isNewArchitectureEnabled() {
+   return rootProject.hasProperty("newArchEnabled") && rootProject.getProperty("newArchEnabled") == "true"
+ }
