@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import type { Range } from './period';
+import type { ReminderInput } from './reminders';
 
 export type Catheter = {
   id: number;
@@ -43,6 +44,14 @@ export function getDb() {
           delta INTEGER NOT NULL,
           note TEXT,
           created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now'))
+        );
+        CREATE TABLE IF NOT EXISTS reminders (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          title TEXT NOT NULL,
+          day TEXT NOT NULL,
+          time TEXT NOT NULL,
+          repeat TEXT NOT NULL,
+          notif_id TEXT
         );
         CREATE TABLE IF NOT EXISTS settings (
           key TEXT PRIMARY KEY,
@@ -182,4 +191,30 @@ export async function getSetting(key: string): Promise<string | null> {
 export async function setSetting(key: string, value: string) {
   const db = await getDb();
   await db.runAsync('INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)', [key, value]);
+}
+
+export type Reminder = ReminderInput & { id: number; notif_id: string | null };
+
+export async function listReminders(): Promise<Reminder[]> {
+  const db = await getDb();
+  return db.getAllAsync<Reminder>('SELECT * FROM reminders ORDER BY id DESC');
+}
+
+export async function addReminder(r: ReminderInput, notifId: string | null): Promise<number> {
+  const db = await getDb();
+  const res = await db.runAsync(
+    'INSERT INTO reminders (title, day, time, repeat, notif_id) VALUES (?, ?, ?, ?, ?)',
+    [r.title, r.day, r.time, r.repeat, notifId]
+  );
+  return res.lastInsertRowId;
+}
+
+export async function setReminderNotif(id: number, notifId: string | null) {
+  const db = await getDb();
+  await db.runAsync('UPDATE reminders SET notif_id = ? WHERE id = ?', [notifId, id]);
+}
+
+export async function deleteReminder(id: number) {
+  const db = await getDb();
+  await db.runAsync('DELETE FROM reminders WHERE id = ?', [id]);
 }

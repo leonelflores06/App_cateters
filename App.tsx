@@ -6,9 +6,10 @@ import { Pressable, SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { listWithStats, type CatheterRow } from './src/db';
 import DashboardScreen from './src/screens/DashboardScreen';
 import LoadScreen from './src/screens/LoadScreen';
+import RemindersScreen from './src/screens/RemindersScreen';
 import { ThemeProvider, useStyles, useTheme, type Palette, type ThemeMode } from './src/theme';
 
-type Tab = 'cargar' | 'panel';
+type Tab = 'cargar' | 'panel' | 'recordatorios';
 
 const NEXT_MODE: Record<ThemeMode, ThemeMode> = { system: 'light', light: 'dark', dark: 'system' };
 const MODE_LABEL: Record<ThemeMode, string> = { system: '◐ Auto', light: '☀️ Claro', dark: '🌙 Oscuro' };
@@ -53,17 +54,26 @@ function Main() {
         </Pressable>
       </View>
 
-      {/* Las dos pantallas quedan montadas para no perder lo que se estaba cargando al cambiar de apartado. */}
+      {/* Las tres pantallas quedan montadas para no perder lo que se estaba cargando al cambiar de apartado. */}
       <View style={[styles.screen, tab !== 'cargar' && styles.hidden]}>
         <LoadScreen rows={rows} reload={reload} />
       </View>
       <View style={[styles.screen, tab !== 'panel' && styles.hidden]}>
         <DashboardScreen rows={rows} />
       </View>
+      <View style={[styles.screen, tab !== 'recordatorios' && styles.hidden]}>
+        <RemindersScreen />
+      </View>
 
       <View style={styles.tabs}>
         <TabButton label="Cargar" icon="🎤" active={tab === 'cargar'} onPress={() => setTab('cargar')} />
         <TabButton label="Panel" icon="📊" active={tab === 'panel'} onPress={() => setTab('panel')} />
+        <TabButton
+          label="Recordatorios"
+          icon="🔔"
+          active={tab === 'recordatorios'}
+          onPress={() => setTab('recordatorios')}
+        />
       </View>
     </SafeAreaView>
   );

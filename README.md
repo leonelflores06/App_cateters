@@ -13,13 +13,17 @@ Datos 100% locales (SQLite en el celular). El uso se registra **por voz o escrib
 
 ## Cómo se usa
 
-La app tiene dos apartados (barra de abajo):
+La app tiene tres apartados (barra de abajo):
 
 **🎤 Cargar**
 1. Cargá los catéteres con el nombre que quieras (ej. `18G`, `20G`, `Mariposa`).
 2. Tocá 🎤, decí por ejemplo *"usé 3 catéteres 18G y 1 de 20G"* y tocá ■.
 3. Revisá lo que entendió: podés corregir cantidades (− / +), quitar una línea (×) o invertir uso/reposición.
 4. **Actualizar stock** guarda; **Descartar** borra todo si entendió mal.
+
+**🔔 Recordatorios**: escribí qué recordar (o tocá un atajo), el día (DD/MM/AAAA), la hora (HH:MM) y si se repite
+(una vez, todos los días o todas las semanas). A esa hora llega una notificación del celular, aunque la app esté cerrada.
+"Probar notificación" manda una de prueba en 5 s. Si Android no da permiso de alarmas exactas, la app avisa y ofrece activarlo.
 
 **Tema**: botón arriba a la derecha → ◐ Auto (sigue al celular) / ☀️ Claro / 🌙 Oscuro. Se recuerda.
 

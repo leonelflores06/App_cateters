@@ -20,11 +20,19 @@
       },
       "predictiveBackGestureEnabled": false,
       "permissions": [
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "POST_NOTIFICATIONS",
+        "SCHEDULE_EXACT_ALARM"
       ]
     },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite",
+      [
+        "expo-notifications",
+        {
+          "color": "#0a7ea4"
+        }
+      ]
     ],
     "web": {
       "favicon": "./assets/favicon.png"

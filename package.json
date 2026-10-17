@@ -7,6 +7,7 @@
     "buffer": "^6.0.3",
     "expo": "~58.0.14",
     "expo-constants": "~58.0.12",
+    "expo-notifications": "~58.1.5",
     "expo-sqlite": "^58.0.13",
     "expo-status-bar": "~58.0.3",
     "expo-system-ui": "~58.0.6",
