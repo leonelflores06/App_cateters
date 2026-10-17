@@ -79,12 +79,15 @@ export async function applyMovement(catheterId: number, delta: number, note?: st
   });
 }
 
+/** Límite "hace N días" en el mismo formato ISO que created_at (comparación de texto correcta). */
+const since = (days: number) => `strftime('%Y-%m-%dT%H:%M:%fZ','now','-${days} days')`;
+
 export async function getStats(c: Catheter): Promise<Stats> {
   const db = await getDb();
   const row = await db.getFirstAsync<{ u7: number | null; u30: number | null }>(
     `SELECT
-       SUM(CASE WHEN created_at >= datetime('now','-7 days')  THEN -delta END) AS u7,
-       SUM(CASE WHEN created_at >= datetime('now','-30 days') THEN -delta END) AS u30
+       SUM(CASE WHEN created_at >= ${since(7)}  THEN -delta END) AS u7,
+       SUM(CASE WHEN created_at >= ${since(30)} THEN -delta END) AS u30
      FROM movements WHERE catheter_id = ? AND delta < 0`,
     [c.id]
   );
@@ -103,4 +106,36 @@ export async function recentMovements(limit = 20) {
      ORDER BY m.id DESC LIMIT ?`,
     [limit]
   );
+}
+
+export type CatheterRow = Catheter & { stats: Stats };
+
+export async function listWithStats(): Promise<CatheterRow[]> {
+  const list = await listCatheters();
+  return Promise.all(list.map(async (c) => ({ ...c, stats: await getStats(c) })));
+}
+
+/** Fecha local "YYYY-MM-DD" (igual que date(..., 'localtime') de SQLite). */
+export function localDay(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+}
+
+/** Unidades usadas por día en los últimos `days` días (incluye hoy), con ceros en los días sin uso. */
+export async function dailyUsage(days: number): Promise<{ day: string; used: number }[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<{ day: string; used: number }>(
+    `SELECT date(created_at, 'localtime') AS day, SUM(-delta) AS used
+     FROM movements WHERE delta < 0 AND created_at >= ${since(days + 1)}
+     GROUP BY day`
+  );
+  const byDay = new Map(rows.map((r) => [r.day, r.used]));
+  const out: { day: string; used: number }[] = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const key = localDay(d);
+    out.push({ day: key, used: byDay.get(key) ?? 0 });
+  }
+  return out;
 }

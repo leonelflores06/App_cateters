@@ -13,9 +13,16 @@ Datos 100% locales (SQLite en el celular). El uso se registra **por voz o escrib
 
 ## Cómo se usa
 
+La app tiene dos apartados (barra de abajo):
+
+**🎤 Cargar**
 1. Cargá los catéteres con el nombre que quieras (ej. `18G`, `20G`, `Mariposa`).
 2. Tocá 🎤, decí por ejemplo *"usé 3 catéteres 18G y 1 de 20G"* y tocá ■.
-3. Aparece lo que entendió (podés corregir el texto a mano). Tocá **Confirmar** y se actualiza el stock.
+3. Revisá lo que entendió: podés corregir cantidades (− / +), quitar una línea (×) o invertir uso/reposición.
+4. **Actualizar stock** guarda; **Descartar** borra todo si entendió mal.
+
+**📊 Panel**: stock total, usados en 7 y 30 días, alertas de reposición, gráfico de uso diario (14 días),
+uso por catéter, stock vs mínimo (con días restantes) y últimos movimientos.
 
 También sirve escribir la frase. Para reponer: *"repuse 10 de 18G"*, *"llegaron 20 de 22G"*.
 Los números pueden ir en dígitos o palabras ("tres", "dieciocho", "treinta y dos"). Si no ponés cantidad, se toma 1.
