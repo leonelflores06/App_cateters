@@ -30,6 +30,20 @@ jobs:
       - name: Instalar dependencias
         run: npm ci
 
+      # Cada build tiene su versión (1.0.<número de build>) para distinguir los APK en el celular.
+      - name: Poner número de versión
+        id: version
+        run: |
+          VERSION="1.0.${{ github.run_number }}"
+          node -e '
+            const fs = require("fs");
+            const j = JSON.parse(fs.readFileSync("app.json", "utf8"));
+            j.expo.version = process.argv[1];
+            j.expo.android.versionCode = Number(process.argv[2]);
+            fs.writeFileSync("app.json", JSON.stringify(j, null, 2) + "\n");
+          ' "$VERSION" "${{ github.run_number }}"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
       - name: Chequear tipos
         run: npx tsc --noEmit
 
@@ -52,8 +66,11 @@ jobs:
         working-directory: android
         run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
 
+      - name: Renombrar APK con la versión
+        run: mv android/app/build/outputs/apk/release/app-release.apk "stock-cateteres-${{ steps.version.outputs.version }}.apk"
+
       - name: Subir APK
         uses: actions/upload-artifact@v4
         with:
-          name: stock-cateteres-apk
-          path: android/app/build/outputs/apk/release/*.apk
+          name: stock-cateteres-${{ steps.version.outputs.version }}
+          path: stock-cateteres-${{ steps.version.outputs.version }}.apk

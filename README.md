@@ -61,5 +61,5 @@ cd android && ./gradlew assembleRelease -PreactNativeArchitectures=arm64-v8a,arm
 ## Compilar APK en GitHub
 
 Cada push a `main` (o a ramas `claude/**`) ejecuta `.github/workflows/build-apk.yml`: tipos, lint, tests,
-prebuild, descarga del modelo y `assembleRelease`. El APK queda como *artifact* en **Actions**
+prebuild, descarga del modelo y `assembleRelease`. El APK queda como *artifact* `stock-cateteres-1.0.<N>` (con `stock-cateteres-1.0.<N>.apk` adentro, N = número de build; la versión también se ve debajo del título en la app) en **Actions**
 (también se puede lanzar a mano con *Run workflow*).

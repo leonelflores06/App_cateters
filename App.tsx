@@ -1,3 +1,4 @@
+import Constants from 'expo-constants';
 import { StatusBar } from 'expo-status-bar';
 import * as SystemUI from 'expo-system-ui';
 import { useCallback, useEffect, useState } from 'react';
@@ -43,7 +44,10 @@ function Main() {
     <SafeAreaView style={styles.container}>
       <StatusBar style={isDark ? 'light' : 'dark'} />
       <View style={styles.header}>
-        <Text style={styles.title}>Stock de catéteres</Text>
+        <View style={styles.titleBox}>
+          <Text style={styles.title}>Stock de catéteres</Text>
+          <Text style={styles.version}>v{Constants.expoConfig?.version ?? '?'}</Text>
+        </View>
         <Pressable style={styles.modeBtn} onPress={() => setMode(NEXT_MODE[mode])}>
           <Text style={styles.modeTxt}>{MODE_LABEL[mode]}</Text>
         </Pressable>
@@ -80,7 +84,9 @@ const makeStyles = (c: Palette) =>
   StyleSheet.create({
     container: { flex: 1, backgroundColor: c.bg, paddingTop: 40 },
     header: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 16, paddingBottom: 4 },
-    title: { flex: 1, fontSize: 22, fontWeight: '700', color: c.text },
+    titleBox: { flex: 1 },
+    title: { fontSize: 22, fontWeight: '700', color: c.text },
+    version: { fontSize: 11, color: c.muted },
     modeBtn: { backgroundColor: c.card, borderWidth: 1, borderColor: c.border, borderRadius: 16, paddingHorizontal: 10, paddingVertical: 5 },
     modeTxt: { fontSize: 13, color: c.text },
     screen: { flex: 1 },
